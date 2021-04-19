@@ -1,0 +1,32 @@
+resource_group=$RESOURCE_GROUP
+subscription_id=$SUBSCRIPTION_ID
+location_resources=$LOCATION 
+solution_name=$SOLUTION_NAME
+
+echo $solution_name
+echo $resource_group
+
+
+adlsg2_name="${solution_name}adlsgen2" #should be '^[a-z0-9]{3,26}$'
+storage_name="${solution_name}v2blob" #should be '^[a-z0-9]{3,26}$'
+ams_name="${solution_name}ams" #should be '^[a-z0-9]{3,26}$'
+function_name="${solution_name}functionapp"
+event_grid_system_topic="${solution_name}-event-based-video" #can only contain A-Z, a-z, 0-9, and the '-' character
+event_grid_subscription="event-based-video-subscription"
+
+#spin up Azure Media Services, Azure Function, ADLSg2, EventGrid
+
+#Create ADLSg2
+az storage account create --name $adlsg2_name --resource-group $resource_group --location $location_resources --kind StorageV2 --hns true 
+adls_resource_id=$(az resource show --name $adlsg2_name --resource-group $resource_group --resource-type "Microsoft.Storage/StorageAccounts" --query id -o tsv)
+az storage container create --name raw --account-name $adlsg2_name
+
+#Create Storage Account for AMS
+az storage account create --name $storage_name --resource-group $resource_group --location $location_resources --kind StorageV2
+
+#AMS
+az ams account create --name $ams_name --resource-group $resource_group --storage-account $storage_name --location $location_resources --mi-system-assigned
+
+#Azure Function
+az functionapp create --name $function_name --resource-group $resource_group --storage-account $storage_name --consumption-plan-location $location_resources --os-type Linux --runtime python --runtime-version 3.8 --functions-version 3
+

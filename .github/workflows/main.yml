@@ -1,0 +1,69 @@
+name: Deploy Azure Media Services FaceRedaction solution
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_NAME: '<solution-name>' #all lowercase, numbers allowed, this will be used to create the underlying Azure services 
+      SUBSCRIPTION_ID: '<subscription-id>' #from step 2.
+      LOCATION: "<location>" # e.g. westeurope
+      RESOURCE_GROUP: "<resource-group>" #from step 2.
+      AZURECREDENTIALS_DVDS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_CLIENT_ID: ${{ secrets.CLIENT_ID}}
+      AZURE_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
+     
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        
+      - name: 'Resolve Project Dependencies Using Pip'
+        shell: bash
+        run: |
+            pushd './azure-function'
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+            popd
+    
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Azure resources using Azure CLI script file
+        uses: azure/CLI@v1
+        with:
+          azcliversion:  2.21.0
+          inlineScript: |
+            chmod +x $GITHUB_WORKSPACE/Azure_Services_Provisioning/deploy_resources.azcli
+            $GITHUB_WORKSPACE/Azure_Services_Provisioning/deploy_resources.azcli
+        
+      - name: Deploy Azure Function code
+        uses: Azure/functions-action@v1.3.1
+        with:
+          app-name: "${{env.SOLUTION_NAME}}functionapp"
+          package: ./azure-function
+          respect-funcignore: true
+          
+      - name: Configure Azure resources using Azure CLI script file
+        uses: azure/CLI@v1
+        with:
+          azcliversion:  2.21.0
+          inlineScript: |
+            chmod +x $GITHUB_WORKSPACE/Azure_Services_Provisioning/configure_resources.azcli
+            $GITHUB_WORKSPACE/Azure_Services_Provisioning/configure_resources.azcli
+            
