@@ -30,25 +30,32 @@ Fork a copy of this repo to your account. Check [this page](https://docs.github.
 
 ### 2. Create Service Principal and Resource group 
 
-Before the Github Actions workflow can be run, a pre-existing resource-group has to be created, as well as a Service principal that has the Contributor Role on the resource group. This Service Principal will be the app that will provision and configure all Azure services on behalf of Github Actions. 
+Before the Github Actions workflow can be run, a pre-existing resource-group has to be created, as well as a Service principal that has the Contributor + Storage Blob Data Reader Role on the resource group. This Service Principal will be the app that will provision and configure all Azure services on behalf of Github Actions. 
 
 1. Create a Resource group following this [docs page](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups)
 2. Create Service Principal with the contributor role on the resource group by doing the following:
  - Fill in the created resource group, subscription-id and an App-name (e.g. spn-githubaction) in below Azure CLI command:
   ```bash
-   az ad sp create-for-rbac --name {appName} --role contributor \
-                          --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} \
-                          --sdk-auth
-                          
-   az role assignment create --assignee {appName} --role "Storage Blob Reader" \
-                           --scope /subscriptions/{subscription-id}/resourceGroups/{resource-group}
+   app_name="<name-of-app>"
+   resource_group="<name-of-resource-group>"
+   subscription_id="<subscription-id>"
+
+   az ad sp create-for-rbac --name $app_name --role contributor \
+                        --scopes /subscriptions/$subscription_id/resourceGroups/$resource_group \
+                        --sdk-auth
+ 
+   object_id=$(az ad sp list --display-name $app_name --query [0].objectId -o tsv)
+                       
+   az role assignment create --assignee $object_id --role "Storage Blob Data Reader" \
+                         --scope /subscriptions/$subscription_id/resourceGroups/$resource_group
+
                             
-  # Replace {subscription-id}, {resource-group} with the subscription, resource group details. Make sure to use a unique name for the name parameter.
+  # Replace {subscription-id}, {resource-group}, and App-name with the subscription, resource group and app name details. Make sure to use a unique name for the name parameter.
   ```
   
  - Copy the output for next step. Note, the output should be in the form of:
    
-  ```ruby
+  ```bash
   # The command should output a JSON object similar to this:
 
   {
@@ -77,7 +84,7 @@ The Service Principal details should be stored as a secret so that Github Action
  2. Define Environment variables in Workflow file: 
 Open the workflow file in the repo (Event-based-FaceRedaction-with-Azure-Media-Services/.github/workflows/main.yml) and click on Edit:
 Add your specific details in line 21-24: 
-```ruby
+```bash
     env:
       SOLUTION_NAME: '<solution-name>' #all lowercase, numbers allowed, this will be used to create the underlying Azure services 
       SUBSCRIPTION_ID: '<subscription-id>' #from step 2.
