@@ -116,5 +116,6 @@ By clicking on the job, you will see some details about the specific job. If you
 
  - Using a Managed Service Identity (MSI) possible for Azure Functions to AMS/ADLSg2 is possible, but the Service Principal can't grant permissions to MSI in tenants (for security reasons). You could manually grant the Storage Blob Contributor role to the MSI of Azure Function on the ADLSg2, and Give the MSI the Contributor role to AMS. 
  - With this solution the face detection + redaction step are combined. It is possible to have a two-step approach, so you can customize the result of the face detection (e.g. to have smaller blurred face)
+ - At the time of writing, neither the Azure Media Services v3 python sdk, nor Azure CLI did support the creation of a FaceRedaction Transform. We therefore chose to use the Rest API method to create the transform job. 
  
 *If you have any suggestions or feedback, please let us know by opening an issue.*
