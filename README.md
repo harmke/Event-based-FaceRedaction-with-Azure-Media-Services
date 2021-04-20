@@ -35,10 +35,13 @@ Before the Github Actions workflow can be run, a pre-existing resource-group has
 1. Create a Resource group following this [docs page](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups)
 2. Create Service Principal with the contributor role on the resource group by doing the following:
  - Fill in the created resource group, subscription-id and an App-name (e.g. spn-githubaction) in below Azure CLI command:
-  ```ruby
-   az ad sp create-for-rbac --name "myApp" --role owner \
-                            --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} \
-                            --sdk-auth
+  ```bash
+   az ad sp create-for-rbac --name {appName} --role contributor \
+                          --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group} \
+                          --sdk-auth
+                          
+   az role assignment create --assignee {appName} --role "Storage Blob Reader" \
+                           --scope /subscriptions/{subscription-id}/resourceGroups/{resource-group}
                             
   # Replace {subscription-id}, {resource-group} with the subscription, resource group details. Make sure to use a unique name for the name parameter.
   ```
@@ -81,7 +84,7 @@ Add your specific details in line 21-24:
       LOCATION: "<location>" # e.g. westeurope
       RESOURCE_GROUP: "<resource-group>" #from step 2.
 ```
-Click on commit to master. Great, you are now set to deploy the full solution! 
+Click on commit to main. Great, you are now set to deploy the full solution! 
 As you enabled the GitHub Actions Workflow in the previous step which gets triggered by the Master branch, the Workflow should start running now. Go to the Actions tab to verify this.
  
  ### 5. Test your solution
