@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import adal
 from msrestazure.azure_active_directory import MSIAuthentication, AdalAuthentication
@@ -75,7 +76,7 @@ def main(event: func.EventGridEvent):
                                   file_name=blob_name, credential=delegation_key, permission=FileSasPermissions(read=True),
                                   expiry=datetime.utcnow() + timedelta(hours=1), protocol="https")
 
-    sas_url = "{}?{}".format(blob_url, sas_token)
+    sas_url = "{}?{}".format(quote(blob_url), sas_token)
     logging.info(sas_url)
 
     job_name = 'Faceblurring-job_' + datetime.utcnow().strftime("%m-%d-%Y_%H:%M:%S")
