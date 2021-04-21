@@ -19,14 +19,14 @@ This repository is able to deploy the solution that can be found in the architec
 ## How to deploy
 
 The deployment of this project consists of three seperate steps: deploying the Azure services to setup the overall solution, deploying the function app that submits a job to Azure Media Services when a new file is uploaded, and configuring the Eventgrid triggers. We have created a GitHub Actions workflow that performs these steps. Therefor, this solution can be deployed by simply variables to your GitHub environment. To summarize, these are the steps that need to be executed to deploy this solution:
-1. Fork this repository
+1. Generate Template from this repository
 2. Create necessary service principal and resource group
 3. Enable GitHub Actions pipeline
 4. Add environment variables and Secrets
 5. Test your solution
 
-### 1. Fork Repository
-Fork a copy of this repo to your account. Check [this page](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) for instructions on how to fork a repo.
+### 1. Use Template from this Repository
+Click on the 'Use Template' button to create a copy of this repo to your account. Check [this page](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) for instructions on how to use a templatized repo.
 
 ### 2. Create Service Principal and Resource group 
 
