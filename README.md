@@ -4,7 +4,7 @@
 
 This repository contains a quickstart to deploy an event-based solution on Azure, where incoming videos will be transformed using a Job in Azure Media Services.
 
-The specific transformation that will be used is called [Face Redactor](https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-face-redaction), which is an Azure Media Analytics media processor, that allows you to modify your video in order to blur faces of selected individuals.
+The specific transformation that will be used is called [Face Redactor](https://docs.microsoft.com/en-us/azure/media-services/latest/analyze-face-redaction-concept), which is an Azure Media Analytics media processor, that allows you to modify your video in order to blur faces of selected individuals.
 
 ## Architecture
 
